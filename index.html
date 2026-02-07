@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Třídění anorganických sloučenin</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #dcdcdc; /* světle šedé pozadí */
+        text-align: center;
+    }
+
+    h1 {
+        font-size: 36px;
+        margin-bottom: 30px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .quiz-container {
+        display: flex;
+        background: linear-gradient(145deg, #ffffff, #e6e6e6);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        max-width: 900px;
+        margin: 0 auto 20px auto;
+    }
+
+    .formula {
+        flex: 1;
+        font-size: 48px;
+        font-weight: bold;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .options {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .option {
+        padding: 15px;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        cursor: pointer;
+        text-align: center;
+        transition: background-color 0.3s, transform 0.2s;
+        font-size: 18px;
+        box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .option:hover {
+        transform: scale(1.05);
+    }
+
+    .option.correct {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .option.wrong {
+        background-color: #F44336;
+        color: white;
+    }
+
+    .results {
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        display: flex;
+        gap: 20px;
+        font-size: 22px;
+        line-height: 1.8;
+        justify-content: center;
+    }
+
+    .results div {
+        flex: 1;
+    }
+
+    .results h2 {
+        margin-top: 0;
+        font-size: 26px;
+    }
+
+    .results ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .results li.correct { color: green; }
+    .results li.wrong { color: red; }
+
+    #restartBtn {
+        margin-top: 20px;
+        padding: 12px 25px;
+        font-size: 20px;
+        background-color: #1976D2;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    #restartBtn:hover {
+        background-color: #1565C0;
+        transform: scale(1.05);
+    }
+</style>
+</head>
+<body>
+
+<h1>Třídění anorganických sloučenin</h1>
+
+<div class="quiz-container">
+    <div class="formula" id="formula">H₂O</div>
+    <div class="options" id="options"></div>
+</div>
+
+<div class="results" id="results" style="display:none;">
+    <div>
+        <h2>Správně</h2>
+        <ul id="correctList"></ul>
+    </div>
+    <div>
+        <h2>Špatně</h2>
+        <ul id="wrongList"></ul>
+    </div>
+</div>
+
+<button id="restartBtn" style="display:none;" onclick="restartQuiz()">Hrát znovu</button>
+
+<script>
+const quizData = [
+  { formula: "PbS", answer: "SULFID" },
+  { formula: "SO₂", answer: "OXID" },
+  { formula: "SO₃", answer: "OXID" },
+  { formula: "HCl", answer: "KYSELINA bezkyslíkatá" },
+  { formula: "FeS", answer: "SULFID" },
+  { formula: "NaOH", answer: "HYDROXID" },
+  { formula: "Ca(OH)₂", answer: "HYDROXID" },
+  { formula: "KOH", answer: "HYDROXID" },
+  { formula: "Na₂O", answer: "OXID" },
+  { formula: "CaSO₄", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "H₂SO₄", answer: "KYSELINA kyslíkatá" },
+  { formula: "NaF", answer: "HALOGENID" },
+  { formula: "NH₄Cl", answer: "HALOGENID" },
+  { formula: "PCl₃", answer: "HALOGENID" },
+  { formula: "CuSO₄", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "HNO₃", answer: "KYSELINA kyslíkatá" },
+  { formula: "Al₂O₃", answer: "OXID" },
+  { formula: "Na₂CO₃", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "H₂S", answer: "KYSELINA bezkyslíkatá" },
+  { formula: "BaCl₂", answer: "HALOGENID" },
+  { formula: "Na₂S", answer: "SULFID" },
+  { formula: "Fe₂O₃", answer: "OXID" },
+  { formula: "K₂Cr₂O₇", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "NaI", answer: "HALOGENID" },
+  { formula: "AgNO₃", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "CaO", answer: "OXID" },
+  { formula: "Na₂SO₃", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "HClO₃", answer: "KYSELINA bezkyslíkatá" },
+  { formula: "Na₂Cr₂O₇", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "KNO₃", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "H₂SO₃", answer: "KYSELINA kyslíkatá" },
+  { formula: "Na₂HPO₄", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "NaNO₃", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "CaCO₃", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "Na₂S₂O₃", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "K₂SO₄", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "Na₂SiO₃", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "HBr", answer: "KYSELINA bezkyslíkatá" },
+  { formula: "Cl₂O₇", answer: "OXID" },
+  { formula: "MgCl₂", answer: "HALOGENID" },
+  { formula: "Na₂O₂", answer: "OXID" },
+  { formula: "SO₃", answer: "OXID" },
+  { formula: "FeCl₃", answer: "HALOGENID" },
+  { formula: "KBr", answer: "HALOGENID" },
+  { formula: "HCl", answer: "KYSELINA bezkyslíkatá" },
+  { formula: "Li₂O", answer: "OXID" },
+  { formula: "HIO₄", answer: "KYSELINA kyslíkatá" },
+  { formula: "ZnS", answer: "SULFID" },
+  { formula: "NaBr", answer: "HALOGENID" },
+  { formula: "KClO₃", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "PbO₂", answer: "OXID" },
+  { formula: "HCN", answer: "KYSELINA bezkyslíkatá" },
+  { formula: "AlCl₃", answer: "HALOGENID" },
+  { formula: "MgSO₄", answer: "SŮL od kyslíkaté kyseliny" },
+  { formula: "Na₂S", answer: "SULFID" }
+];
+
+const categories = [
+  "OXID",
+  "SULFID",
+  "HALOGENID",
+  "HYDROXID",
+  "KYSELINA bezkyslíkatá",
+  "KYSELINA kyslíkatá",
+  "SŮL od kyslíkaté kyseliny"
+];
+
+let currentQuestion = 0;
+let correctAnswers = [];
+let wrongAnswers = [];
+let selectedQuestions = [];
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+function startQuiz() {
+    shuffle(quizData);
+    selectedQuestions = quizData.slice(0, 10);
+    currentQuestion = 0;
+    correctAnswers = [];
+    wrongAnswers = [];
+
+    document.getElementById("results").style.display = "none";
+    document.getElementById("restartBtn").style.display = "none";
+    document.querySelector(".quiz-container").style.display = "flex";
+
+    loadQuestion();
+}
+
+function loadQuestion() {
+    if (currentQuestion >= selectedQuestions.length) {
+        showResults();
+        return;
+    }
+
+    const q = selectedQuestions[currentQuestion];
+    document.getElementById("formula").textContent = q.formula;
+
+    const optionsContainer = document.getElementById("options");
+    optionsContainer.innerHTML = "";
+
+    categories.forEach(cat => {
+        const div = document.createElement("div");
+        div.className = "option";
+        div.textContent = cat;
+        div.onclick = () => handleAnswer(div, q);
+        optionsContainer.appendChild(div);
+    });
+}
+
+function handleAnswer(selected, question) {
+    if (selected.textContent === question.answer) {
+        selected.classList.add("correct");
+        correctAnswers.push({ formula: question.formula, answer: selected.textContent });
+    } else {
+        selected.classList.add("wrong");
+        wrongAnswers.push({ formula: question.formula, answer: question.answer });
+    }
+
+    Array.from(document.getElementsByClassName("option")).forEach(opt => opt.onclick = null);
+
+    setTimeout(() => {
+        currentQuestion++;
+        loadQuestion();
+    }, 500);
+}
+
+function showResults() {
+    document.querySelector(".quiz-container").style.display = "none";
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.style.display = "flex";
+    document.getElementById("restartBtn").style.display = "inline-block";
+
+    const correctList = document.getElementById("correctList");
+    correctList.innerHTML = "";
+    correctAnswers.forEach(a => {
+        const li = document.createElement("li");
+        li.textContent = `${a.formula} - ${a.answer}`;
+        li.className = "correct";
+        correctList.appendChild(li);
+    });
+
+    const wrongList = document.getElementById("wrongList");
+    wrongList.innerHTML = "";
+    wrongAnswers.forEach(a => {
+        const li = document.createElement("li");
+        li.textContent = `${a.formula} - ${a.answer}`;
+        li.className = "wrong";
+        wrongList.appendChild(li);
+    });
+}
+
+function restartQuiz() {
+    startQuiz();
+}
+
+// start prvního kola
+startQuiz();
+</script>
+
+</body>
+</html>
